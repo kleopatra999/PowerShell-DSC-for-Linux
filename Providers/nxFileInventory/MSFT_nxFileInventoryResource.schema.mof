@@ -2,7 +2,8 @@
 class MSFT_nxFileInventoryResource:OMI_BaseResource
 {
   [Key] string DestinationPath;
-  [Write] boolean Recurse;
+  [Write] boolean Recurse;  //default = false
+  [Write] boolean UseSudo;  //default = false
   [Write, ValueMap{"follow", "ignore" }, Values{"follow", "manage","ignore"}] string Links;
   [Write, ValueMap{"md5", "sha-256", "mtime", "ctime"}, Values{"md5","sha-256","mtime","ctime"}] string Checksum; 
   [Write, ValueMap{"file", "directory", "*"},Values{"file", "directory","*"}] string Type;

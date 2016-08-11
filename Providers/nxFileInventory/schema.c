@@ -932,6 +932,49 @@ static MI_CONST MI_PropertyDecl MSFT_nxFileInventoryResource_Recurse_prop =
     NULL,
 };
 
+static MI_CONST MI_Boolean MSFT_nxFileInventoryResource_UseSudo_Write_qual_value = 1;
+
+static MI_CONST MI_Qualifier MSFT_nxFileInventoryResource_UseSudo_Write_qual =
+{
+    MI_T("Write"),
+    MI_BOOLEAN,
+    MI_FLAG_ENABLEOVERRIDE|MI_FLAG_TOSUBCLASS,
+    &MSFT_nxFileInventoryResource_UseSudo_Write_qual_value
+};
+
+static MI_CONST MI_Boolean MSFT_nxFileInventoryResource_UseSudo_InventoryFilter_qual_value = 1;
+
+static MI_CONST MI_Qualifier MSFT_nxFileInventoryResource_UseSudo_InventoryFilter_qual =
+{
+    MI_T("InventoryFilter"),
+    MI_BOOLEAN,
+    MI_FLAG_ENABLEOVERRIDE,
+    &MSFT_nxFileInventoryResource_UseSudo_InventoryFilter_qual_value
+};
+
+static MI_Qualifier MI_CONST* MI_CONST MSFT_nxFileInventoryResource_UseSudo_quals[] =
+{
+    &MSFT_nxFileInventoryResource_UseSudo_Write_qual,
+    &MSFT_nxFileInventoryResource_UseSudo_InventoryFilter_qual,
+};
+
+/* property MSFT_nxFileInventoryResource.UseSudo */
+static MI_CONST MI_PropertyDecl MSFT_nxFileInventoryResource_UseSudo_prop =
+{
+    MI_FLAG_PROPERTY, /* flags */
+    0x00756F07, /* code */
+    MI_T("UseSudo"), /* name */
+    MSFT_nxFileInventoryResource_UseSudo_quals, /* qualifiers */
+    MI_COUNT(MSFT_nxFileInventoryResource_UseSudo_quals), /* numQualifiers */
+    MI_BOOLEAN, /* type */
+    NULL, /* className */
+    0, /* subscript */
+    offsetof(MSFT_nxFileInventoryResource, UseSudo), /* offset */
+    MI_T("MSFT_nxFileInventoryResource"), /* origin */
+    MI_T("MSFT_nxFileInventoryResource"), /* propagator */
+    NULL,
+};
+
 static MI_CONST MI_Boolean MSFT_nxFileInventoryResource_Links_Write_qual_value = 1;
 
 static MI_CONST MI_Qualifier MSFT_nxFileInventoryResource_Links_Write_qual =
@@ -1509,6 +1552,7 @@ static MI_PropertyDecl MI_CONST* MI_CONST MSFT_nxFileInventoryResource_props[] =
 {
     &MSFT_nxFileInventoryResource_DestinationPath_prop,
     &MSFT_nxFileInventoryResource_Recurse_prop,
+    &MSFT_nxFileInventoryResource_UseSudo_prop,
     &MSFT_nxFileInventoryResource_Links_prop,
     &MSFT_nxFileInventoryResource_Checksum_prop,
     &MSFT_nxFileInventoryResource_Type_prop,

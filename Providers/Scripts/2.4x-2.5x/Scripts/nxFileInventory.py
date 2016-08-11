@@ -31,6 +31,7 @@ except ImportError: # Only sha-1 is available for python2.4.
 # {
 #   [Key, InventoryFilter] string DestinationPath;
 #   [Write, InventoryFilter] boolean Recurse;  //default = false
+#   [Write, InventoryFilter] boolean UseSudo;  //default = false
 #   [Write, ValueMap{"follow", "manage", "ignore" }, Values{"follow", "manage", "ignore"},InventoryFilter] string Links; //default follow
 #   [Write, ValueMap{"md5", "sha-256", "mtime", "ctime"}, Values{"md5","sha-256","mtime","ctime"},InventoryFilter] string Checksum; //default md5
 #   [Write, ValueMap{"file", "directory", "*"},Values{"file", "directory","*"}, InventoryFilter] string Type; //default *
@@ -47,11 +48,13 @@ except ImportError: # Only sha-1 is available for python2.4.
 
 #{'Links': u'ignore', 'MaxOutputSize': None, 'Checksum': u'md5', 'Recurse': None, 'MaxContentsReturnable': None, 'DestinationPath': u'/tmp', 'Type': u'directory'}
 
-def init_locals(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize):
+def init_locals(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo):
     if DestinationPath is None :
         DestinationPath = ''
     if Recurse is None :
         Recurse = False
+    if UseSudo is None :
+        UseSudo = False
     if Links is None :
         Links = 'follow'
     if Checksum is None :
@@ -64,25 +67,26 @@ def init_locals(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsRetu
         MaxOutputSize = 10485760
     return DestinationPath.encode('ascii', 'ignore'), Recurse, Links.encode('ascii', 'ignore').lower(), \
         Checksum.encode('ascii', 'ignore').lower(), Type.encode('ascii', 'ignore').lower(), \
-        MaxContentsReturnable, MaxOutputSize
+        MaxContentsReturnable, MaxOutputSize, UseSudo
 
 
-def Set_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize):
+def Set_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo):
     return [0]
 
-def Test_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize):
+def Test_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo):
     return [0]
 
-def Get_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize):
+def Get_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo):
     arg_names = list(locals().keys())
-    DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize \
-            = init_locals(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize)
+    DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo \
+            = init_locals(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo)
     retval = 0
     DestinationPath = protocol.MI_String(DestinationPath)
     Type = protocol.MI_String(Type)
     MaxContentsReturnable =  protocol.MI_Uint32(MaxContentsReturnable)
     MaxOutputSize =  protocol.MI_Uint64(MaxOutputSize)
     Recurse = protocol.MI_Boolean(Recurse)
+    UseSudo = protocol.MI_Boolean(UseSudo)
     Links = protocol.MI_String(Links)
     Checksum = protocol.MI_String(Checksum)
     Contents = protocol.MI_String('')
@@ -99,13 +103,18 @@ def Get_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsRet
         retd[k] = ld[k]
     return retval, retd
 
-def Inventory_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize):
-    DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize \
-                     = init_locals(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize)
+def Inventory_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo):
+    DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo \
+                     = init_locals(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo)
     retval = 0
     out_size_cur = 0
-    Inventory = DoInventory(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize)
+    _Inventory = []
+    Inventory = DoInventory(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo)
     for d in Inventory:
+        if out_size_cur <  MaxOutputSize:
+            out_size_cur += len(repr(d))
+        if out_size_cur >  MaxOutputSize:
+            continue
         d['DestinationPath'] = protocol.MI_String(d['DestinationPath'])
         d['Checksum'] = protocol.MI_String(d['Checksum'])
         d['Type'] = protocol.MI_String(d['Type'])
@@ -116,16 +125,14 @@ def Inventory_Marshall(DestinationPath, Recurse, Links, Checksum, Type, MaxConte
         d['Group'] = protocol.MI_String(d['Group'])
         d['Owner'] = protocol.MI_String(d['Owner'])
         d['FileSize'] = protocol.MI_Uint64(d['FileSize'])
-        out_size_cur += len(repr(d))
-        if out_size_cur >=  MaxOutputSize:
-            break
-    Inventory = protocol.MI_InstanceA(Inventory)
+        _Inventory.append(d)
+    _Inventory = protocol.MI_InstanceA(_Inventory)
     retd = {}
-    retd["__Inventory"] = Inventory
+    retd["__Inventory"] = _Inventory
     return retval, retd
 
 
-def DoInventory(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize):
+def DoInventory(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsReturnable, MaxOutputSize, UseSudo):
     Inventory = []
     full_path = DestinationPath.split('/')
     if full_path[-1] == '':
@@ -226,9 +233,9 @@ def GetFileInfo(fname, Links, MaxContentsReturnable, Checksum):
     if Checksum == 'md5' or Checksum == 'sha-256':
         d['Checksum'] = GetChecksum(fname,Checksum)
     elif Checksum == "ctime":
-        d['Checksum']= int(stat_info.st_ctime)
+        d['Checksum']= str(int(stat_info.st_ctime))
     else : # Checksum == "mtime":
-        d['Checksum']= int(stat_info.st_mtime)
+        d['Checksum']= str(int(stat_info.st_mtime))
     if d['Type'] == 'link' and Links == 'manage' :
         d['Contents'] = 'Symlink to ' + os.readlink(fname) 
     else :
@@ -257,9 +264,9 @@ def GetDirInfo(dname, stat_info, Checksum, Links):
     if Checksum == 'md5' or Checksum == 'sha-256':
         d['Checksum'] = '0'
     elif Checksum == "ctime":
-        d['Checksum']= int(stat_info.st_ctime)
+        d['Checksum']= str(int(stat_info.st_ctime))
     else : # Checksum == "mtime":
-        d['Checksum']= int(stat_info.st_mtime)
+        d['Checksum']= str(int(stat_info.st_mtime))
     d['Mode'] = str(oct(stat_info.st_mode))[-3:]
     d['ModifiedDate'] = int(stat_info.st_mtime)
     d['CreatedDate'] = int(stat_info.st_ctime)

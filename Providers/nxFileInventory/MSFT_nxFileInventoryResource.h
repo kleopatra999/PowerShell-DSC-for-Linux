@@ -31,6 +31,7 @@ typedef struct _MSFT_nxFileInventoryResource /* extends OMI_BaseResource */
     /* MSFT_nxFileInventoryResource properties */
     /*KEY*/ MI_ConstStringField DestinationPath;
     MI_ConstBooleanField Recurse;
+    MI_ConstBooleanField UseSudo;
     MI_ConstStringField Links;
     MI_ConstStringField Checksum;
     MI_ConstStringField Type;
@@ -182,13 +183,29 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Clear_Recurse(
     return MI_RESULT_OK;
 }
 
+MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_UseSudo(
+    _Inout_ MSFT_nxFileInventoryResource* self,
+    _In_ MI_Boolean x)
+{
+    ((MI_BooleanField*)&self->UseSudo)->value = x;
+    ((MI_BooleanField*)&self->UseSudo)->exists = 1;
+    return MI_RESULT_OK;
+}
+
+MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Clear_UseSudo(
+    _Inout_ MSFT_nxFileInventoryResource* self)
+{
+    memset((void*)&self->UseSudo, 0, sizeof(self->UseSudo));
+    return MI_RESULT_OK;
+}
+
 MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Links(
     _Inout_ MSFT_nxFileInventoryResource* self,
     _In_z_ const MI_Char* str)
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        2,
+        3,
         (MI_Value*)&str,
         MI_STRING,
         0);
@@ -200,7 +217,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_SetPtr_Links(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        2,
+        3,
         (MI_Value*)&str,
         MI_STRING,
         MI_FLAG_BORROW);
@@ -211,7 +228,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Clear_Links(
 {
     return self->__instance.ft->ClearElementAt(
         (MI_Instance*)&self->__instance,
-        2);
+        3);
 }
 
 MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Checksum(
@@ -220,7 +237,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Checksum(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        3,
+        4,
         (MI_Value*)&str,
         MI_STRING,
         0);
@@ -232,7 +249,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_SetPtr_Checksum(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        3,
+        4,
         (MI_Value*)&str,
         MI_STRING,
         MI_FLAG_BORROW);
@@ -243,7 +260,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Clear_Checksum(
 {
     return self->__instance.ft->ClearElementAt(
         (MI_Instance*)&self->__instance,
-        3);
+        4);
 }
 
 MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Type(
@@ -252,7 +269,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Type(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        4,
+        5,
         (MI_Value*)&str,
         MI_STRING,
         0);
@@ -264,7 +281,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_SetPtr_Type(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        4,
+        5,
         (MI_Value*)&str,
         MI_STRING,
         MI_FLAG_BORROW);
@@ -275,7 +292,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Clear_Type(
 {
     return self->__instance.ft->ClearElementAt(
         (MI_Instance*)&self->__instance,
-        4);
+        5);
 }
 
 MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_MaxContentsReturnable(
@@ -316,7 +333,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Contents(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        7,
+        8,
         (MI_Value*)&str,
         MI_STRING,
         0);
@@ -328,7 +345,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_SetPtr_Contents(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        7,
+        8,
         (MI_Value*)&str,
         MI_STRING,
         MI_FLAG_BORROW);
@@ -339,7 +356,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Clear_Contents(
 {
     return self->__instance.ft->ClearElementAt(
         (MI_Instance*)&self->__instance,
-        7);
+        8);
 }
 
 MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_ModifiedDate(
@@ -380,7 +397,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Mode(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        10,
+        11,
         (MI_Value*)&str,
         MI_STRING,
         0);
@@ -392,7 +409,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_SetPtr_Mode(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        10,
+        11,
         (MI_Value*)&str,
         MI_STRING,
         MI_FLAG_BORROW);
@@ -403,7 +420,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Clear_Mode(
 {
     return self->__instance.ft->ClearElementAt(
         (MI_Instance*)&self->__instance,
-        10);
+        11);
 }
 
 MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Group(
@@ -412,7 +429,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Group(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        11,
+        12,
         (MI_Value*)&str,
         MI_STRING,
         0);
@@ -424,7 +441,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_SetPtr_Group(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        11,
+        12,
         (MI_Value*)&str,
         MI_STRING,
         MI_FLAG_BORROW);
@@ -435,7 +452,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Clear_Group(
 {
     return self->__instance.ft->ClearElementAt(
         (MI_Instance*)&self->__instance,
-        11);
+        12);
 }
 
 MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Owner(
@@ -444,7 +461,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_Owner(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        12,
+        13,
         (MI_Value*)&str,
         MI_STRING,
         0);
@@ -456,7 +473,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_SetPtr_Owner(
 {
     return self->__instance.ft->SetElementAt(
         (MI_Instance*)&self->__instance,
-        12,
+        13,
         (MI_Value*)&str,
         MI_STRING,
         MI_FLAG_BORROW);
@@ -467,7 +484,7 @@ MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Clear_Owner(
 {
     return self->__instance.ft->ClearElementAt(
         (MI_Instance*)&self->__instance,
-        12);
+        13);
 }
 
 MI_INLINE MI_Result MI_CALL MSFT_nxFileInventoryResource_Set_FileSize(
