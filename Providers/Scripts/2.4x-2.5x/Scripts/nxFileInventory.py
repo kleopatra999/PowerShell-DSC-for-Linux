@@ -149,7 +149,7 @@ def DoInventory(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsRetu
         top = '/' + os.path.join(*full_path)
     if not os.path.exists(top):
         print("Error: Unable to read 'DestinationPath': " + DestinationPath)
-        LG.Log("ERROR","Unable to read 'DestinationPath': " + DestinationPath)
+        LG().Log("ERROR","Unable to read 'DestinationPath': " + DestinationPath)
         return Inventory
     if not wildcard_path:
         if Links == 'ignore' and os.path.islink(top):
@@ -172,11 +172,11 @@ def DoInventory(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsRetu
         else :
             do_wildcard = False
         st = os.stat(dirpath)
-        # Prune dirs we have visited from dirnames.
         scandirs = []
         if dlen+1 == full_path_len  or ( Recurse and dlen >= full_path_len ):
             for filename in filenames:
-                if dlen+1 == full_path_len and not fnmatch.fnmatch(filename, full_path[-1]):
+                if (dlen+1 == full_path_len  or ( Recurse and dlen >= full_path_len )) \
+                       and not fnmatch.fnmatch(filename, full_path[-1]):
                     continue
                 if Type != 'directory':
                     d = GetFileInfo(os.path.join(dirpath, filename),\
@@ -184,9 +184,10 @@ def DoInventory(DestinationPath, Recurse, Links, Checksum, Type, MaxContentsRetu
                     if 'DestinationPath' in d.keys():
                         Inventory.append(copy.deepcopy(d))
         for dirname in dirnames:
-            if ( do_wildcard and not fnmatch.fnmatch(dirname, full_path[dlen]) ) or \
-                   ( not Recurse and dlen > full_path_len ):
-                continue
+            if not ( Recurse and dlen+1 >= full_path_len ):
+                if ( do_wildcard and not fnmatch.fnmatch(dirname, full_path[dlen]) ) or \
+                       ( not Recurse and dlen > full_path_len ):
+                    continue
             st = os.stat(os.path.join(dirpath, dirname)) # use Lstat if follow?
             dirkey = st.st_dev, st.st_ino
             if dirkey not in dirs:
